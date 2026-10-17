@@ -9,9 +9,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.example.paocards.data.CARD_DATA
 import com.example.paocards.ui.theme.*
 
@@ -25,14 +27,16 @@ fun PracticeScreen() {
         Text("Joshua Foer's 3-Card Method", color = LightGrey, fontSize = 14.sp)
         Spacer(Modifier.height(24.dp))
 
-        // The 3 cards
+        // The 3 cards using 3D images
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             cards.forEach { card ->
-                Card(modifier = Modifier.weight(1f).height(160.dp), colors = CardDefaults.cardColors(containerColor = if (card.color == "Red") Color(0xFF4A1010) else Color(0xFF1A1A1A))) {
-                    Column(modifier = Modifier.fillMaxSize().padding(8.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-                        Text(card.emoji, fontSize = 30.sp)
-                        Text(card.rank, color = Orange, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                        Text(card.suitSymbol, color = if (card.color == "Red") Color.Red else White, fontSize = 20.sp)
+                Card(modifier = Modifier.weight(1f).height(160.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
+                    Box(modifier = Modifier.fillMaxSize().padding(4.dp), contentAlignment = Alignment.Center) {
+                        AsyncImage(
+                            model = "file:///android_asset/cards/${card.imageName}.png",
+                            contentDescription = card.card,
+                            contentScale = ContentScale.Fit
+                        )
                     }
                 }
             }
@@ -41,18 +45,18 @@ fun PracticeScreen() {
         Spacer(Modifier.height(24.dp))
 
         Button(onClick = { revealed = !revealed }, modifier = Modifier.fillMaxWidth(), colors = ButtonDefaults.buttonColors(containerColor = Orange, contentColor = Color.Black)) {
-            Text(if (revealed) "Hide PAO" else "Reveal PAO Story")
+            Text(if (revealed) "Hide PAO Story" else "Reveal PAO Story")
         }
 
         Spacer(Modifier.height(16.dp))
 
         AnimatedVisibility(visible = revealed, enter = fadeIn() + expandVertically(), exit = fadeOut() + shrinkVertically()) {
             Column(modifier = Modifier.fillMaxWidth().background(DarkSurface, RoundedCornerShape(10.dp)).padding(16.dp)) {
-                Text("Person: ${cards[0].person}", color = White, fontWeight = FontWeight.Bold)
-                Text("Action: ${cards[1].action}", color = White, fontWeight = FontWeight.Bold)
-                Text("Object: ${cards[2].objectName}", color = White, fontWeight = FontWeight.Bold)
+                Text("Card 1 (Person): ${cards[0].person}", color = White, fontWeight = FontWeight.Bold)
+                Text("Card 2 (Action): ${cards[1].action}", color = White, fontWeight = FontWeight.Bold)
+                Text("Card 3 (Object): ${cards[2].objectName}", color = White, fontWeight = FontWeight.Bold)
                 Spacer(Modifier.height(8.dp))
-                Text("Imagine: ${cards[0].person} ${cards[1].action} ${cards[2].objectName}", color = Color(0xFF4CAF50), fontSize = 14.sp)
+                Text("Story: ${cards[0].person} is ${cards[1].action} a ${cards[2].objectName}.", color = Green, fontSize = 16.sp, fontWeight = FontWeight.Bold)
             }
         }
 
