@@ -37,6 +37,15 @@ fun TeachScreen() {
 
     fun random() { val card = CARD_DATA.random(); input = card.card; active = card; error = "" }
 
+    fun next() {
+        val currentCard = active ?: CARD_DATA.first()
+        val idx = CARD_DATA.indexOf(currentCard)
+        val nextCard = CARD_DATA[(idx + 1) % CARD_DATA.size]
+        input = nextCard.card
+        active = nextCard
+        error = ""
+    }
+
     Column(modifier = Modifier.fillMaxSize().background(DarkBg).verticalScroll(scroll).padding(16.dp)) {
         Text("🃏 Teach", color = Orange, fontSize = 26.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 12.dp))
         
@@ -62,19 +71,36 @@ fun TeachScreen() {
         PAORow("Object:", active?.objectName ?: "—")
         
         Spacer(Modifier.height(12.dp))
+        
         OutlinedTextField(
-            value = input, onValueChange = { if (it.length <= 4) input = it },
-            label = { Text("Enter card (e.g. A♥, 5♦)") }, singleLine = true,
+            value = input, 
+            onValueChange = { if (it.length <= 4) input = it },
+            label = { Text("Enter card (e.g. A, 5, 10)") }, 
+            singleLine = true,
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
             keyboardActions = KeyboardActions(onDone = { load() }),
             modifier = Modifier.fillMaxWidth(),
             colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Orange, focusedLabelColor = Orange, focusedTextColor = White)
         )
-        if (error.isNotEmpty()) { Text(error, color = Red, fontSize = 12.sp) }
+
         Spacer(Modifier.height(8.dp))
+        
+        // Suit Buttons
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+            Button(onClick = { input += "♥" }, colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4A1010))) { Text("♥", fontSize = 20.sp, color = Color.Red) }
+            Button(onClick = { input += "♦" }, colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4A1010))) { Text("♦", fontSize = 20.sp, color = Color.Red) }
+            Button(onClick = { input += "♣" }, colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF222222))) { Text("♣", fontSize = 20.sp, color = White) }
+            Button(onClick = { input += "♠" }, colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF222222))) { Text("♠", fontSize = 20.sp, color = White) }
+        }
+
+        if (error.isNotEmpty()) { Text(error, color = Red, fontSize = 12.sp) }
+        
+        Spacer(Modifier.height(8.dp))
+        
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Button(onClick = { load() }, modifier = Modifier.weight(1f), colors = ButtonDefaults.buttonColors(containerColor = Green)) { Text("↵ Go") }
             Button(onClick = { random() }, modifier = Modifier.weight(1f), colors = ButtonDefaults.buttonColors(containerColor = Orange, contentColor = Color.Black)) { Text("🎲") }
+            Button(onClick = { next() }, modifier = Modifier.weight(1f), colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF555555))) { Text("➡️") }
         }
         
         if (active != null) {
