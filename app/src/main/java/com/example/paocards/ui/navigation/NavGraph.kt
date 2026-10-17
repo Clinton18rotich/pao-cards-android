@@ -18,15 +18,16 @@ import com.example.paocards.ui.theme.*
 sealed class Screen(val route: String, val label: String, val icon: ImageVector) {
     object Teach : Screen("teach", "Teach", Icons.Filled.Style)
     object Flashcards : Screen("flashcards", "Cards", Icons.Filled.ViewCarousel)
-    object Quiz : Screen("quiz", "Quiz", Icons.Filled.Quiz)
+    object Practice : Screen("practice", "Practice", Icons.Filled.FitnessCenter)
+    object Timer : Screen("timer", "Timer", Icons.Filled.Timer)
     object Table : Screen("table", "Table", Icons.Filled.List)
-    object HowTo : Screen("howto", "How-To", Icons.Filled.Info)
+    object HowTo : Screen("howto", "Info", Icons.Filled.Info)
 }
 
 @Composable
 fun CardNavGraph() {
     val navController = rememberNavController()
-    val items = listOf(Screen.Teach, Screen.Flashcards, Screen.Quiz, Screen.Table, Screen.HowTo)
+    val items = listOf(Screen.Teach, Screen.Flashcards, Screen.Practice, Screen.Timer, Screen.Table, Screen.HowTo)
 
     Scaffold(
         containerColor = DarkBg,
@@ -37,7 +38,7 @@ fun CardNavGraph() {
                 items.forEach { screen ->
                     NavigationBarItem(
                         icon = { Icon(screen.icon, contentDescription = screen.label, tint = if (currentRoute == screen.route) Orange else LightGrey) },
-                        label = { Text(screen.label, color = if (currentRoute == screen.route) Orange else LightGrey) },
+                        label = { Text(screen.label, fontSize = 10.sp, color = if (currentRoute == screen.route) Orange else LightGrey) },
                         selected = currentRoute == screen.route,
                         onClick = {
                             navController.navigate(screen.route) {
@@ -55,7 +56,8 @@ fun CardNavGraph() {
         NavHost(navController = navController, startDestination = Screen.Teach.route, modifier = Modifier.padding(padding)) {
             composable(Screen.Teach.route) { TeachScreen() }
             composable(Screen.Flashcards.route) { FlashcardsScreen() }
-            composable(Screen.Quiz.route) { QuizScreen() }
+            composable(Screen.Practice.route) { PracticeScreen() }
+            composable(Screen.Timer.route) { FullDeckScreen() }
             composable(Screen.Table.route) { TableScreen() }
             composable(Screen.HowTo.route) { HowToScreen() }
         }

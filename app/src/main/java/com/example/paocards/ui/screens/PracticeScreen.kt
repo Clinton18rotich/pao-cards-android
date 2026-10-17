@@ -1,0 +1,64 @@
+package com.example.paocards.ui.screens
+
+import androidx.compose.animation.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.example.paocards.data.CARD_DATA
+import com.example.paocards.ui.theme.*
+
+@Composable
+fun PracticeScreen() {
+    var cards by remember { mutableStateOf(List(3) { CARD_DATA.random() }) }
+    var revealed by remember { mutableStateOf(false) }
+
+    Column(modifier = Modifier.fillMaxSize().background(DarkBg).padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+        Text("🧠 Practice Mode", color = Orange, fontSize = 26.sp, fontWeight = FontWeight.Bold)
+        Text("Joshua Foer's 3-Card Method", color = LightGrey, fontSize = 14.sp)
+        Spacer(Modifier.height(24.dp))
+
+        // The 3 cards
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            cards.forEach { card ->
+                Card(modifier = Modifier.weight(1f).height(160.dp), colors = CardDefaults.cardColors(containerColor = if (card.color == "Red") Color(0xFF4A1010) else Color(0xFF1A1A1A))) {
+                    Column(modifier = Modifier.fillMaxSize().padding(8.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+                        Text(card.emoji, fontSize = 30.sp)
+                        Text(card.rank, color = Orange, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                        Text(card.suitSymbol, color = if (card.color == "Red") Color.Red else White, fontSize = 20.sp)
+                    }
+                }
+            }
+        }
+
+        Spacer(Modifier.height(24.dp))
+
+        Button(onClick = { revealed = !revealed }, modifier = Modifier.fillMaxWidth(), colors = ButtonDefaults.buttonColors(containerColor = Orange, contentColor = Color.Black)) {
+            Text(if (revealed) "Hide PAO" else "Reveal PAO Story")
+        }
+
+        Spacer(Modifier.height(16.dp))
+
+        AnimatedVisibility(visible = revealed, enter = fadeIn() + expandVertically(), exit = fadeOut() + shrinkVertically()) {
+            Column(modifier = Modifier.fillMaxWidth().background(DarkSurface, RoundedCornerShape(10.dp)).padding(16.dp)) {
+                Text("Person: ${cards[0].person}", color = White, fontWeight = FontWeight.Bold)
+                Text("Action: ${cards[1].action}", color = White, fontWeight = FontWeight.Bold)
+                Text("Object: ${cards[2].objectName}", color = White, fontWeight = FontWeight.Bold)
+                Spacer(Modifier.height(8.dp))
+                Text("Imagine: ${cards[0].person} ${cards[1].action} ${cards[2].objectName}", color = Color(0xFF4CAF50), fontSize = 14.sp)
+            }
+        }
+
+        Spacer(Modifier.height(24.dp))
+        Button(onClick = { cards = List(3) { CARD_DATA.random() }; revealed = false }, modifier = Modifier.fillMaxWidth(), colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF555555))) {
+            Text("🎲 Shuffle New Hand")
+        }
+    }
+}

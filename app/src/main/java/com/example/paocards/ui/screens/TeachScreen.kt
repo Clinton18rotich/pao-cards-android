@@ -12,10 +12,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.example.paocards.data.CardEntry
 import com.example.paocards.data.CARD_DATA
 import com.example.paocards.data.getCard
@@ -38,15 +40,16 @@ fun TeachScreen() {
     Column(modifier = Modifier.fillMaxSize().background(DarkBg).verticalScroll(scroll).padding(16.dp)) {
         Text("🃏 Teach", color = Orange, fontSize = 26.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 12.dp))
         
-        Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+        Box(modifier = Modifier.fillMaxWidth().height(240.dp), contentAlignment = Alignment.Center) {
             if (active != null) {
-                Box(modifier = Modifier.size(160.dp).background(if (active!!.color == "Red") Color(0xFF4A1010) else Color(0xFF1A1A1A), RoundedCornerShape(16.dp)), contentAlignment = Alignment.Center) {
-                    Text(active!!.emoji, fontSize = 60.sp)
-                }
+                AsyncImage(
+                    model = "file:///android_asset/cards/${active!!.imageName}.png",
+                    contentDescription = active!!.card,
+                    modifier = Modifier.height(240.dp),
+                    contentScale = ContentScale.Fit
+                )
             } else {
-                Box(modifier = Modifier.size(160.dp).background(DarkSurface, RoundedCornerShape(16.dp)), contentAlignment = Alignment.Center) {
-                    Text("🃏", fontSize = 60.sp)
-                }
+                Text("🃏", fontSize = 80.sp)
             }
         }
         
