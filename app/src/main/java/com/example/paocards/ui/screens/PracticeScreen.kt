@@ -15,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -23,6 +24,7 @@ import androidx.compose.ui.unit.sp
 import android.speech.tts.TextToSpeech
 import androidx.compose.ui.platform.LocalContext
 import java.util.Locale
+import coil.compose.AsyncImage
 import com.example.paocards.data.CARD_DATA
 import com.example.paocards.data.CardEntry
 import com.example.paocards.ui.theme.*
@@ -89,6 +91,15 @@ fun CardPAOPractice() {
                     val label = when(index) { 0 -> "PERSON"; 1 -> "ACTION"; else -> "OBJECT" }
                     Text(label, color = Green, fontSize = 10.sp, fontWeight = FontWeight.Bold)
                     if (revealed) {
+                        if (index == 0 && card.personImage != null) {
+                            AsyncImage(
+                                model = "file:///android_asset/people/${card.personImage}",
+                                contentDescription = card.person,
+                                modifier = Modifier.fillMaxWidth().height(80.dp).clip(RoundedCornerShape(6.dp)),
+                                contentScale = ContentScale.Crop
+                            )
+                            Spacer(Modifier.height(4.dp))
+                        }
                         val value = when(index) { 0 -> card.person; 1 -> card.action; else -> card.objectName }
                         Text(value, color = White, fontSize = 12.sp, maxLines = 3, textAlign = TextAlign.Center)
                     } else {

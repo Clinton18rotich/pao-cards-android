@@ -11,6 +11,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
@@ -64,6 +65,17 @@ fun TeachScreen() {
         
         Spacer(Modifier.height(12.dp))
         Text(active?.card ?: "??", color = Orange, fontSize = 44.sp, fontWeight = FontWeight.Bold, modifier = Modifier.align(Alignment.CenterHorizontally))
+        
+        // Person image (only for non-Hearts cards)
+        if (active?.personImage != null) {
+            Spacer(Modifier.height(12.dp))
+            AsyncImage(
+                model = "file:///android_asset/people/${active!!.personImage}",
+                contentDescription = active!!.person,
+                modifier = Modifier.fillMaxWidth().height(200.dp).clip(RoundedCornerShape(12.dp)),
+                contentScale = ContentScale.Crop
+            )
+        }
         Spacer(Modifier.height(8.dp))
         
         PAORow("Person:", active?.person ?: "—")
