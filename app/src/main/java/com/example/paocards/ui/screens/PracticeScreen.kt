@@ -115,7 +115,7 @@ fun CardPAOPractice() {
                 Text(if (revealed) "Hide Story" else "Reveal Story")
             }
             Button(onClick = { 
-                val story = "Imagine ${"$"}{cards[0].person} is ${"$"}{cards[1].action} a ${"$"}{cards[2].objectName}."
+                val story = "Imagine ${cards[0].person} is ${cards[1].action} a ${cards[2].objectName}."
                 tts?.speak(story, TextToSpeech.QUEUE_FLUSH, null, null)
             }, modifier = Modifier.weight(1f), colors = ButtonDefaults.buttonColors(containerColor = Green, contentColor = Color.Black)) {
                 Text("🔊 Speak")
