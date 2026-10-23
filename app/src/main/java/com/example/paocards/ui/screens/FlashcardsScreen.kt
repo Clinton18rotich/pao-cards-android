@@ -14,12 +14,24 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import android.speech.tts.TextToSpeech
+import androidx.compose.ui.platform.LocalContext
+import java.util.Locale
 import coil.compose.AsyncImage
 import com.example.paocards.data.CARD_DATA
 import com.example.paocards.ui.theme.*
 
 @Composable
 fun FlashcardsScreen() {
+    val context = LocalContext.current
+    var tts by remember { mutableStateOf<TextToSpeech?>(null) }
+    LaunchedEffect(Unit) {
+        tts = TextToSpeech(context) { status ->
+            if (status == TextToSpeech.SUCCESS) {
+                tts?.language = Locale.US
+            }
+        }
+    }
     var current by remember { mutableStateOf(CARD_DATA.random()) }
     var revealed by remember { mutableStateOf(false) }
 
@@ -40,7 +52,10 @@ fun FlashcardsScreen() {
                 Spacer(Modifier.height(16.dp))
                 
                 if (!revealed) { 
-                    Button(onClick = { revealed = true }, colors = ButtonDefaults.buttonColors(containerColor = Orange, contentColor = Color.Black)) { Text("Reveal PAO") } 
+                    Button(onClick = { 
+            revealed = true 
+            tts?.speak("${'$'}{currentCard.person} ${'$'}{currentCard.action} a ${'$'}{currentCard.objectName}", TextToSpeech.QUEUE_FLUSH, null, null)
+        }, colors = ButtonDefaults.buttonColors(containerColor = Orange, contentColor = Color.Black)) { Text("Reveal PAO") } 
                 } else {
                     Text(current.person, color = Color.Black, fontSize = 20.sp, fontWeight = FontWeight.Bold)
                     Text(current.action, color = Color.DarkGray, fontSize = 16.sp)

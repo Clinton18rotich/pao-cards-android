@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -18,6 +20,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import android.speech.tts.TextToSpeech
+import androidx.compose.ui.platform.LocalContext
+import java.util.Locale
 import com.example.paocards.data.CARD_DATA
 import com.example.paocards.data.CardEntry
 import com.example.paocards.ui.theme.*
@@ -48,6 +53,18 @@ fun PracticeScreen() {
 
 @Composable
 fun CardPAOPractice() {
+    val context = LocalContext.current
+    var tts by remember { mutableStateOf<TextToSpeech?>(null) }
+    
+    LaunchedEffect(Unit) {
+        tts = TextToSpeech(context) { status ->
+            if (status == TextToSpeech.SUCCESS) {
+                tts?.language = Locale.US
+                tts?.setPitch(1.1f)
+            }
+        }
+    }
+
     var cards by remember { mutableStateOf(List(3) { CARD_DATA.random() }) }
     var revealed by remember { mutableStateOf(false) }
 
@@ -82,8 +99,16 @@ fun CardPAOPractice() {
         }
         
         Spacer(Modifier.height(24.dp))
-        Button(onClick = { revealed = !revealed }, modifier = Modifier.fillMaxWidth(), colors = ButtonDefaults.buttonColors(containerColor = Orange, contentColor = Color.Black)) {
-            Text(if (revealed) "Hide Story" else "Reveal Story")
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Button(onClick = { revealed = !revealed }, modifier = Modifier.weight(1f), colors = ButtonDefaults.buttonColors(containerColor = Orange, contentColor = Color.Black)) {
+                Text(if (revealed) "Hide Story" else "Reveal Story")
+            }
+            Button(onClick = { 
+                val story = "Imagine ${"$"}{cards[0].person} is ${"$"}{cards[1].action} a ${"$"}{cards[2].objectName}."
+                tts?.speak(story, TextToSpeech.QUEUE_FLUSH, null, null)
+            }, modifier = Modifier.weight(1f), colors = ButtonDefaults.buttonColors(containerColor = Green, contentColor = Color.Black)) {
+                Text("🔊 Speak")
+            }
         }
         
         if (revealed) {
@@ -191,7 +216,30 @@ fun CardChampionship() {
             Text("Correct: $correctCount / 52", color = if (correctCount > 40) Green else Red, fontSize = 20.sp, fontWeight = FontWeight.Bold)
             Text("Time used: ${finalTime / 60}m ${finalTime % 60}s", color = White, fontSize = 16.sp)
             
-            Spacer(Modifier.height(24.dp))
+            Spacer(Modifier.height(16.dp))
+            Text("Your Sequence:", color = LightGrey, fontSize = 14.sp)
+            
+            // Scrollable detailed view
+            androidx.compose.foundation.lazy.LazyColumn(modifier = Modifier.weight(1f).fillMaxWidth()) {
+                itemsIndexed(targetDeck) { index, correctCard ->
+                    val userCard = if (index < userSequence.size) userSequence[index] else null
+                    val isCorrect = userCard?.card == correctCard.card
+                    
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp).background(
+                            if (isCorrect) Color(0xFF1E3A1E) else Color(0xFF3A1E1E),
+                            androidx.compose.foundation.shape.RoundedCornerShape(4.dp)
+                        ).padding(8.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text("#${index + 1}", color = LightGrey, fontSize = 14.sp)
+                        Text(correctCard.card, color = Green, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                        Text(userCard?.card ?: "?", color = if (isCorrect) Green else Red, fontSize = 14.sp)
+                    }
+                }
+            }
+            
+            Spacer(Modifier.height(16.dp))
             Button(onClick = { gameState = "setup" }, colors = ButtonDefaults.buttonColors(containerColor = Orange, contentColor = Color.Black), modifier = Modifier.fillMaxWidth()) {
                 Text("Try Again")
             }
