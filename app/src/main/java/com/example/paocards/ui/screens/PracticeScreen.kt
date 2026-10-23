@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.unit.sp
 import android.speech.tts.TextToSpeech
 import androidx.compose.ui.platform.LocalContext
@@ -68,6 +69,7 @@ fun CardPAOPractice() {
     }
 
     var cards by remember { mutableStateOf(List(3) { CARD_DATA.random() }) }
+    var fullscreenCardIndex by remember { mutableStateOf(-1) }
     var revealed by remember { mutableStateOf(false) }
 
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
@@ -84,6 +86,7 @@ fun CardPAOPractice() {
                             .fillMaxWidth()
                             .aspectRatio(0.7f)
                             .clip(RoundedCornerShape(8.dp))
+                            .clickable { fullscreenCardIndex = index }
                     )
                     Spacer(Modifier.height(8.dp))
                     
@@ -95,8 +98,8 @@ fun CardPAOPractice() {
                             AsyncImage(
                                 model = "file:///android_asset/people/${card.personImage}",
                                 contentDescription = card.person,
-                                modifier = Modifier.fillMaxWidth().height(80.dp).clip(RoundedCornerShape(6.dp)),
-                                contentScale = ContentScale.Crop
+                                modifier = Modifier.fillMaxWidth().height(100.dp).clip(RoundedCornerShape(6.dp)).clickable { fullscreenCardIndex = index },
+                                contentScale = ContentScale.Fit
                             )
                             Spacer(Modifier.height(4.dp))
                         }
@@ -115,7 +118,9 @@ fun CardPAOPractice() {
                 Text(if (revealed) "Hide Story" else "Reveal Story")
             }
             Button(onClick = { 
-                val story = "Imagine ${cards[0].person} is ${cards[1].action} a ${cards[2].objectName}."
+                val rawObj = cards[2].objectName
+                val cleanObj = if (rawObj.startsWith("a ", ignoreCase = true) || rawObj.startsWith("an ", ignoreCase = true)) rawObj else "a $rawObj"
+                val story = "Imagine ${cards[0].person} is ${cards[1].action} $cleanObj."
                 tts?.speak(story, TextToSpeech.QUEUE_FLUSH, null, null)
             }, modifier = Modifier.weight(1f), colors = ButtonDefaults.buttonColors(containerColor = Green, contentColor = Color.Black)) {
                 Text("🔊 Speak")
@@ -132,6 +137,23 @@ fun CardPAOPractice() {
         Spacer(Modifier.height(16.dp))
         Button(onClick = { cards = List(3) { CARD_DATA.random() }; revealed = false }, modifier = Modifier.fillMaxWidth(), colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF555555))) {
             Text("🎲 Shuffle")
+        }
+        
+        // Fullscreen dialog
+        if (fullscreenCardIndex >= 0) {
+            Dialog(onDismissRequest = { fullscreenCardIndex = -1 }) {
+                Box(
+                    modifier = Modifier.fillMaxSize().background(Color.Black).clickable { fullscreenCardIndex = -1 },
+                    contentAlignment = Alignment.Center
+                ) {
+                    AsyncImage(
+                        model = "file:///android_asset/cards/${cards[fullscreenCardIndex].imageName}.png",
+                        contentDescription = cards[fullscreenCardIndex].card,
+                        modifier = Modifier.fillMaxSize().padding(16.dp),
+                        contentScale = ContentScale.Fit
+                    )
+                }
+            }
         }
     }
 }

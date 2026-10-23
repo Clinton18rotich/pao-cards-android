@@ -1,5 +1,6 @@
 package com.example.paocards.ui.screens
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -15,6 +16,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -27,6 +29,8 @@ import com.example.paocards.ui.theme.*
 @Composable
 fun TeachScreen() {
     var input by remember { mutableStateOf("") }
+    var showFullscreenPerson by remember { mutableStateOf(false) }
+    var showFullscreenCard by remember { mutableStateOf(false) }
     var active by remember { mutableStateOf<CardEntry?>(null) }
     var error by remember { mutableStateOf("") }
     val scroll = rememberScrollState()
@@ -55,7 +59,7 @@ fun TeachScreen() {
                 AsyncImage(
                     model = "file:///android_asset/cards/${active!!.imageName}.png",
                     contentDescription = active!!.card,
-                    modifier = Modifier.height(240.dp),
+                    modifier = Modifier.height(240.dp).clickable { showFullscreenCard = true },
                     contentScale = ContentScale.Fit
                 )
             } else {
@@ -72,8 +76,8 @@ fun TeachScreen() {
             AsyncImage(
                 model = "file:///android_asset/people/${active!!.personImage}",
                 contentDescription = active!!.person,
-                modifier = Modifier.fillMaxWidth().height(200.dp).clip(RoundedCornerShape(12.dp)),
-                contentScale = ContentScale.Crop
+                modifier = Modifier.fillMaxWidth().height(220.dp).clip(RoundedCornerShape(12.dp)).clickable { showFullscreenPerson = true },
+                contentScale = ContentScale.Fit
             )
         }
         Spacer(Modifier.height(8.dp))
@@ -129,6 +133,41 @@ fun TeachScreen() {
             Spacer(Modifier.height(8.dp))
             Text("🧠 ${active!!.mnemonic}", color = Color(0xFFDDDDDD), fontSize = 14.sp, modifier = Modifier.background(Color(0xFF1E2A1E), RoundedCornerShape(8.dp)).padding(14.dp))
         }
+        
+        // Fullscreen person dialog
+        if (showFullscreenPerson && active?.personImage != null) {
+            Dialog(onDismissRequest = { showFullscreenPerson = false }) {
+                Box(
+                    modifier = Modifier.fillMaxSize().background(Color.Black).clickable { showFullscreenPerson = false },
+                    contentAlignment = Alignment.Center
+                ) {
+                    AsyncImage(
+                        model = "file:///android_asset/people/${active!!.personImage}",
+                        contentDescription = active!!.person,
+                        modifier = Modifier.fillMaxSize().padding(16.dp),
+                        contentScale = ContentScale.Fit
+                    )
+                }
+            }
+        }
+        
+        // Fullscreen card dialog
+        if (showFullscreenCard && active != null) {
+            Dialog(onDismissRequest = { showFullscreenCard = false }) {
+                Box(
+                    modifier = Modifier.fillMaxSize().background(Color.Black).clickable { showFullscreenCard = false },
+                    contentAlignment = Alignment.Center
+                ) {
+                    AsyncImage(
+                        model = "file:///android_asset/cards/${active!!.imageName}.png",
+                        contentDescription = active!!.card,
+                        modifier = Modifier.fillMaxSize().padding(16.dp),
+                        contentScale = ContentScale.Fit
+                    )
+                }
+            }
+        }
+
     }
 }
 

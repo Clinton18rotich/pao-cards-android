@@ -55,7 +55,8 @@ fun FlashcardsScreen() {
                 if (!revealed) { 
                     Button(onClick = { 
             revealed = true 
-            tts?.speak("${current.person} ${current.action} a ${current.objectName}", TextToSpeech.QUEUE_FLUSH, null, null)
+            val cleanObj = if (current.objectName.startsWith("a ", ignoreCase = true) || current.objectName.startsWith("an ", ignoreCase = true)) current.objectName else "a ${current.objectName}"
+                            tts?.speak("${current.person} ${current.action} $cleanObj", TextToSpeech.QUEUE_FLUSH, null, null)
         }, colors = ButtonDefaults.buttonColors(containerColor = Orange, contentColor = Color.Black)) { Text("Reveal PAO") } 
                 } else {
                     // Person image (only for non-Hearts cards)
@@ -63,8 +64,8 @@ fun FlashcardsScreen() {
                         AsyncImage(
                             model = "file:///android_asset/people/${current.personImage}",
                             contentDescription = current.person,
-                            modifier = Modifier.fillMaxWidth(0.7f).height(180.dp).clip(RoundedCornerShape(8.dp)),
-                            contentScale = ContentScale.Crop
+                            modifier = Modifier.fillMaxWidth(0.8f).height(200.dp).clip(RoundedCornerShape(8.dp)),
+                            contentScale = ContentScale.Fit
                         )
                         Spacer(Modifier.height(8.dp))
                     }
