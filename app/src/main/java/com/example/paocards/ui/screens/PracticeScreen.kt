@@ -68,7 +68,7 @@ fun CardPAOPractice() {
         }
     }
 
-    var cards by remember { mutableStateOf(List(3) { CARD_DATA.random() }) }
+    var cards by remember { mutableStateOf(CARD_DATA.shuffled().take(3)) }
     var fullscreenCardIndex by remember { mutableStateOf(-1) }
     var revealed by remember { mutableStateOf(false) }
 
@@ -135,7 +135,7 @@ fun CardPAOPractice() {
         }
         
         Spacer(Modifier.height(16.dp))
-        Button(onClick = { cards = List(3) { CARD_DATA.random() }; revealed = false }, modifier = Modifier.fillMaxWidth(), colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF555555))) {
+        Button(onClick = { cards = CARD_DATA.shuffled().take(3); revealed = false }, modifier = Modifier.fillMaxWidth(), colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF555555))) {
             Text("🎲 Shuffle")
         }
         
@@ -166,13 +166,47 @@ fun CardChampionship() {
     var timeLeft by remember { mutableStateOf(300) }
     var resultMessage by remember { mutableStateOf("") }
     var finalTime by remember { mutableStateOf(0) }
+    
+    val context = LocalContext.current
+    var tts by remember { mutableStateOf<TextToSpeech?>(null) }
+    var isTtsReady by remember { mutableStateOf(false) }
+    
+    LaunchedEffect(Unit) {
+        tts = TextToSpeech(context) { status ->
+            if (status == TextToSpeech.SUCCESS) {
+                tts?.language = Locale.US
+                tts?.setPitch(1.15f)
+                tts?.setSpeechRate(0.95f)
+                isTtsReady = true
+            }
+        }
+    }
+    
+    fun speak(text: String) {
+        if (isTtsReady) {
+            tts?.setPitch(1.15f)
+            tts?.setSpeechRate(0.95f)
+            tts?.speak(text, TextToSpeech.QUEUE_FLUSH, null, null)
+        }
+    }
 
     LaunchedEffect(gameState) {
         if (gameState == "memorizing") {
             timeLeft = 300
+            speak("Memorisation started. You have 5 minutes.")
             while (timeLeft > 0 && gameState == "memorizing") {
                 delay(1000L)
                 timeLeft--
+                
+                when (timeLeft) {
+                    240 -> speak("4 minutes remaining. Continue memorising.")
+                    180 -> speak("3 minutes remaining. Continue memorising.")
+                    120 -> speak("2 minutes remaining. Continue memorising.")
+                    60 -> speak("1 minute remaining.")
+                    30 -> speak("30 seconds remaining.")
+                    10, 9, 8, 7, 6, 5, 4, 3, 2, 1 -> speak(timeLeft.toString())
+                    0 -> speak("Stop. Begin recall.")
+                }
             }
             if (gameState == "memorizing") gameState = "recall"
         }
